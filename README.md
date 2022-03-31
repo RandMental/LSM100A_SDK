@@ -97,7 +97,7 @@ Refer [**[SEONGJI]_LSM100A_FW_Download_Guide.pdf**](https://github.com/SeongJiIo
 
 <br/>
 
-## USB Driever
+## USB Driver
 - Download and Install VCP Drivers on SILICON LABS web site
   + Downloads for Windows, Macintosh, Linux and Android below.
 	* Download link: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers
