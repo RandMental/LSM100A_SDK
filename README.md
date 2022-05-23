@@ -102,5 +102,9 @@ Refer [**[SEONGJI]_LSM100A_FW_Download_Guide.pdf**](https://github.com/SeongJiIo
   + Downloads for Windows, Macintosh, Linux and Android below.
 	* Download link: https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers
 
+<br/>
 
+## Support Site
+- For more information on modules and quick response, please refer to the support site below.
+  + http://support.seongji.co.kr/
 
