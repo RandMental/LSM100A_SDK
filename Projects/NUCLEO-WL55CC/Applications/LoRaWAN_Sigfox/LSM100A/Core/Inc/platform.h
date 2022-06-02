@@ -49,7 +49,6 @@ extern "C" {
 /* USER CODE END include */
 
 #define USER_EKY							1
-#define __DEV_LSM100A__
 
 
 /* Exported types ------------------------------------------------------------*/

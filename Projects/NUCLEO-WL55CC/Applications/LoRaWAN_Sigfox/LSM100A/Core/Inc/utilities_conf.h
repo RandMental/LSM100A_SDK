@@ -55,6 +55,8 @@ extern "C" {
   */
 #define HW_FLASH_ADDRESS                (0x08000000UL)
 
+#define START_FLASH_ADDRESS             (0x08002000UL)
+
 /**
   * @brief Flash page size in bytes
   */
@@ -90,8 +92,8 @@ extern "C" {
   * @brief EEPROM Flash address
   * @note last 2 sector of a 128kBytes device
   */
-#define EE_LORA_BASE_ADRESS                     (0x0802B000UL)		//(0x0801D000UL)
-#define EE_BASE_ADRESS                          (0x0802D000UL)		//(0x0801D000UL)
+#define EE_LORA_BASE_ADRESS                     (0x0803A000UL)		//(0x0801D000UL)
+#define EE_BASE_ADRESS                          (0x0803C000UL)		//(0x0801D000UL)
 
 #define VLEVEL_OFF    0  /*!< used to set UTIL_ADV_TRACE_SetVerboseLevel() (not as message param) */
 #define VLEVEL_ALWAYS 0  /*!< used as message params, if this level is given

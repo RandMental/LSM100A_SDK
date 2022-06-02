@@ -534,7 +534,7 @@ ATEerror_t AT_version_get(const char *param)
   print_n(version, size);
   AT_PRINTF("\r\n");
 
-  AT_PPRINTF("APP_VERSION: STM32Cube_FW_WL_V%X.%X.%X\r\n", __APP_VERSION_MAIN,
+  AT_PPRINTF("APP_VERSION: V%X.%X.%X\r\n", __APP_VERSION_MAIN,
              __APP_VERSION_SUB1,
              __APP_VERSION_SUB2);
 
@@ -1668,6 +1668,174 @@ ATEerror_t AT_sw_version_get(const char *param)
   AT_PPRINTF("SW_VERSION: %s\r\n", APP_SW_VERSION);
   return AT_OK;
 }
+
+
+
+ATEerror_t AT_Send_P2P_Data(const char *param)
+{
+  uint8_t ul_msg[SGFX_MAX_UL_PAYLOAD_SIZE] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+  uint32_t ul_size = 0;
+  uint32_t freq = 869525000;
+  uint32_t dataRate = 600;
+
+  sfx_rc_enum_t sfx_rc = E2P_Read_Rc();
+
+  /* convert AT param to sgfx param */
+  if (stringToData(param, ul_msg, &ul_size) != SUCCESS)
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  AT_PRINTF("Send DATA.....\r\n");
+
+  if(sfx_rc == SFX_RC1)
+  {
+    freq = 869525000;
+	dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC2)
+  {
+    freq = 905200000;
+    dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC3A)
+  {
+    freq = 922200000;
+    dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC3C)
+  {
+    freq = 922300000;
+    dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC4)
+  {
+    freq = 922300000;
+    dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC5)
+  {
+    freq = 866300000;
+    dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC6)
+  {
+    freq = 869100000;
+    dataRate = 600;
+  }
+  else if(sfx_rc == SFX_RC7)
+  {
+    freq = 869525000;
+    dataRate = 600;
+  }
+
+  RF_Tx_Local_loop(freq, dataRate, ul_msg, ul_size);
+
+  return AT_OK;
+}
+
+
+ATEerror_t AT_Receive_P2P_Data(const char *param)
+{
+  sfx_u8 frame[32];
+  sfx_s16 rssi;
+  sfx_s32 receivedCnt = 0;
+  sfx_rx_state_enum_t state;
+  sfx_u8 result = 0;
+  uint32_t freq = 869525000;
+  sfx_rc_enum_t sfx_rc = E2P_Read_Rc();
+  int j = 0;
+
+  g_iRxTestInterrupt = 0;
+
+  AT_PRINTF("\r\nOK\r\n");
+
+  AT_PRINTF("\r\nRecevie DATA.... START\r\n");
+
+  RF_API_init(SFX_RF_MODE_RX);
+
+  if(sfx_rc == SFX_RC1)
+  {
+    freq = 869525000;
+  }
+  else if(sfx_rc == SFX_RC2)
+  {
+    freq = 905200000;
+  }
+  else if(sfx_rc == SFX_RC3A)
+  {
+    freq = 922200000;
+  }
+  else if(sfx_rc == SFX_RC3C)
+  {
+    freq = 922300000;
+  }
+  else if(sfx_rc == SFX_RC4)
+  {
+    freq = 922300000;
+  }
+  else if(sfx_rc == SFX_RC5)
+  {
+    freq = 866300000;
+  }
+  else if(sfx_rc == SFX_RC6)
+  {
+    freq = 869100000;
+  }
+  else if(sfx_rc == SFX_RC7)
+  {
+    freq = 869525000;
+  }
+
+  RF_API_change_frequency(freq);
+
+
+  while(g_iRxTestInterrupt==0)
+  {
+  	memset(frame,0,sizeof(frame));
+  	result = RF_API_wait_frame(frame,&rssi,&state);
+  
+  	if(DL_PASSED == state)
+  	{
+  		receivedCnt++;
+  
+  		if(UTIL_ADV_TRACE_GetVerboseLevel() > 2)
+  		{
+  			AT_PRINTF("RF_API_wait_frame : result[%x] state[%d]\r\n\r\n", result, state);
+  		
+  			AT_PRINTF("RP2P=");
+  			for(j=0; j<sizeof(frame); j++)
+  			{
+  				if(frame[j] > 0)
+  				{
+  					AT_PRINTF("%02X ", frame[j]);
+  				}
+  			}
+  			AT_PRINTF("\r\n");
+  		}
+  		AT_PRINTF("{#%d RSSI=%d RECEIVED!!}\r\n\r\n",receivedCnt,rssi);
+  
+  	}
+  	else
+  	{
+  		if(UTIL_ADV_TRACE_GetVerboseLevel() > 2)
+  		{
+  			AT_PRINTF("RF_API_wait_frame : result[%x] state[%d] - TIMEOUT!!\r\n\r\n", result, state);
+  		}
+  		break;
+  	}
+  }
+
+  RF_API_stop();
+
+  AT_PRINTF("\r\nRecevie DATA.... STOP\r\n");
+
+  g_iRxTestInterrupt = -1;
+
+  return AT_OK;
+}
+
+
 
 /* USER CODE BEGIN EF */
 

@@ -215,7 +215,7 @@ typedef struct LmHandlerCallbacks_s
      * \param [IN] appData Received applicative data
      * \param [IN] params notification parameters
      */
-    void ( *OnRxData )( LmHandlerAppData_t *appData, LmHandlerRxParams_t *params );
+    void ( *OnRxData )( int flag, LmHandlerAppData_t *appData, LmHandlerRxParams_t *params );
     /*!
      * Confirms the LoRaWAN device class change
      *
@@ -751,6 +751,11 @@ LmHandlerErrorStatus_t LmHandlerLinkCheckReq( void );
 
 #if !defined(FEATURE_NOT_SUPPORT_LORA_EE)
 extern int16_t E2P_LORA_Read_Class(void);
+extern void E2P_LORA_Read_Appeui(uint8_t *pRappEui);
+extern void E2P_LORA_Read_Appkey(uint8_t *pRappKey);
+extern void E2P_LORA_Read_Nwkkey(uint8_t *pRnwkKey);
+extern void E2P_LORA_Read_App_S_key(uint8_t *pRappSKey);
+extern void E2P_LORA_Read_Nwk_S_key(uint8_t *pRnwkSKey);
 #endif /* !FEATURE_NOT_SUPPORT_LORA_EE */
 
 #ifdef __cplusplus

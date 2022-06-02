@@ -46,6 +46,9 @@ extern "C" {
 
 /* Exported constants --------------------------------------------------------*/
 
+
+#define START_FLASH_ADDRESS             (0x08002000UL)
+
 #define VLEVEL_OFF    0  /*!< used to set UTIL_ADV_TRACE_SetVerboseLevel() (not as message param) */
 #define VLEVEL_ALWAYS 0  /*!< used as message params, if this level is given
                               trace will be printed even when UTIL_ADV_TRACE_SetVerboseLevel(OFF) */

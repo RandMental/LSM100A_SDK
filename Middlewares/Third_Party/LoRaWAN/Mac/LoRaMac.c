@@ -2358,7 +2358,12 @@ static LoRaMacStatus_t SendReJoinReq( JoinReqIdentifier_t joinReqType )
     {
         case JOIN_REQ:
         {
+#if defined(FEATURE_NOT_SUPPORT_LORA_EE)
             SwitchClass( CLASS_A );
+#else
+            SwitchClass( (DeviceClass_t)E2P_LORA_Read_Class() );
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE */
+
 
             MacCtx.TxMsg.Type = LORAMAC_MSG_TYPE_JOIN_REQUEST;
             MacCtx.TxMsg.Message.JoinReq.Buffer = MacCtx.PktBuffer;

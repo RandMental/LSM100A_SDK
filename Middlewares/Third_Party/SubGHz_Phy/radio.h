@@ -43,6 +43,7 @@ extern "C"
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "lorawan_conf.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /*!
@@ -70,6 +71,11 @@ typedef enum
     RF_CAD,        //!< The radio is doing channel activity detection
 }RadioState_t;
 
+/*!
+ * Network Activation (PUBLIC_NETWORK, PRIVATE_NETWORK)
+ */
+#define PUBLIC_NETWORK			 	1
+#define PRIVATE_NETWORK		 		0
 /*!
  * \brief Radio driver callback functions
  */
@@ -482,6 +488,10 @@ struct Radio_s
  *         board implementation
  */
 extern const struct Radio_s Radio;
+
+#if !defined(FEATURE_NOT_SUPPORT_LORA_EE)
+extern uint8_t E2P_LORA_Read_Network_Type(void);
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE */
 
 #ifdef __cplusplus
 }

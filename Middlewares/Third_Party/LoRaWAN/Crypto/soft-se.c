@@ -575,7 +575,7 @@ SecureElementStatus_t SecureElementInit( SecureElementNvmData_t *nvm, SecureElem
 #endif /* LORAMAC_CLASSB_ENABLED */
 #endif /* LORAWAN_KMS */
 
-#if (defined (KEY_EXTRACTABLE) && (KEY_EXTRACTABLE == 1))
+#if 0//(defined (KEY_EXTRACTABLE) && (KEY_EXTRACTABLE == 1))
     MW_LOG(TS_OFF, VLEVEL_M, "------ OTAA ------\r\n");
     PrintKey(APP_KEY);
     PrintKey(NWK_KEY);

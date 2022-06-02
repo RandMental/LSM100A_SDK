@@ -647,8 +647,18 @@ static void RadioInit( RadioEvents_t *events )
 
     SUBGRF_Init( RadioOnDioIrq );
     /*SubgRf.publicNetwork set to false*/
+#if defined(FEATURE_NOT_SUPPORT_LORA_EE)
     RadioSetPublicNetwork( false );
-
+#else
+	if(E2P_LORA_Read_Network_Type() == PUBLIC_NETWORK)
+	{
+		RadioSetPublicNetwork(true);
+	}
+	else
+	{
+		RadioSetPublicNetwork(false);
+	}
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE */
     RADIO_IRQ_PROCESS_INIT();
 
     SUBGRF_SetRegulatorMode(  );

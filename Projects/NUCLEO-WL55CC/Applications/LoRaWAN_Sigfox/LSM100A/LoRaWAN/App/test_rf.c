@@ -79,6 +79,8 @@
 static uint8_t TestState = 0;
 
 static testParameter_t testParam = { TEST_LORA, F_868MHz, EMISSION_POWER, BW_125kHz, SF12, CR4o5, 0, 0, DEFAULT_PAYLOAD_LEN, DEFAULT_FSK_DEVIATION, DEFAULT_LDR_OPT, DEFAULT_GAUSS_BT};
+static testParameter_t P2PParam = { TEST_LORA, F_868MHz, EMISSION_POWER, BW_125kHz, SF12, CR4o5, 0, 0, DEFAULT_PAYLOAD_LEN, DEFAULT_FSK_DEVIATION, DEFAULT_LDR_OPT, DEFAULT_GAUSS_BT};
+
 
 static __IO uint32_t RadioTxDone_flag = 0;
 static __IO uint32_t RadioTxTimeout_flag = 0;
@@ -97,6 +99,8 @@ static RadioEvents_t RadioEvents;
  * Radio test payload pointer
  */
 static uint8_t payload[256] = {0};
+static uint8_t *RXpayload;
+static uint16_t RXpayload_len;
 
 /* USER CODE BEGIN PV */
 int whileEnd;
@@ -188,7 +192,7 @@ int32_t TST_RxRssi(void)
     RxConfig.fsk.PreambleLen = 3;   /*in Byte*/
     RxConfig.fsk.SyncWordLength = 3; /*in Byte*/
     RxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
-    RxConfig.fsk.whiteSeed = 0x01FF ; /*WhiteningSeed*/
+    RxConfig.fsk.whiteSeed = 0x01FF; /*WhiteningSeed*/
     RxConfig.fsk.LengthMode = RADIO_FSK_PACKET_VARIABLE_LENGTH; /* If the header is explicit, it will be transmitted in the GFSK packet. If the header is implicit, it will not be transmitted*/
     RxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_CCIT;       /* Size of the CRC block in the GFSK packet*/
     RxConfig.fsk.CrcPolynomial = 0x1021;
@@ -442,7 +446,14 @@ int32_t TST_RX_Start(int32_t nb_packet)
         return -1; /*error*/
       }
 
-      Radio.Rx(RX_TIMEOUT_VALUE);
+      if (testParam.lna == 0)
+      {
+        Radio.Rx(RX_TIMEOUT_VALUE);
+      }
+      else
+      {
+        Radio.RxBoosted(RX_TIMEOUT_VALUE);
+      }
 
       /* Wait Rx done/timeout */
       UTIL_SEQ_WaitEvt(1 << CFG_SEQ_Evt_RadioOnTstRF);
@@ -534,7 +545,9 @@ void OnRxDone(uint8_t *payload, uint16_t size, int16_t rssi, int8_t LoraSnr_FskC
   /* USER CODE END OnRxDone_1 */
   last_rx_rssi = rssi;
   last_rx_LoraSnr_FskCfo = LoraSnr_FskCfo;
-
+  RXpayload = payload;
+  RXpayload_len = size;
+  
   /* Set Rxdone flag */
   RadioRxDone_flag = 1;
   UTIL_SEQ_SetEvt(1 << CFG_SEQ_Evt_RadioOnTstRF);
@@ -810,6 +823,282 @@ int32_t TST_Modu_RX_Start(void)
 
   /* USER CODE END TST_RX_Start_2 */
 }
+
+int32_t  P2P_set_config(P2PParameter_t *Param)
+{
+  /* USER CODE BEGIN P2P_set_config_1 */
+
+  /* USER CODE END P2P_set_config_1 */
+  UTIL_MEM_cpy_8(&P2PParam, Param, sizeof(P2PParameter_t));
+
+  return 0;
+  /* USER CODE BEGIN P2P_set_config_2 */
+
+  /* USER CODE END P2P_set_config_2 */
+}
+
+int32_t P2P_get_config(P2PParameter_t *Param)
+{
+  /* USER CODE BEGIN P2P_get_config_1 */
+
+  /* USER CODE END P2P_get_config_1 */
+  UTIL_MEM_cpy_8(Param, &P2PParam, sizeof(P2PParameter_t));
+  return 0;
+  /* USER CODE BEGIN P2P_get_config_2 */
+
+  /* USER CODE END P2P_get_config_2 */
+}
+
+int32_t P2P_TX_Start(uint8_t *P2Ppayload, uint8_t P2Ppayload_len)
+{
+  /* USER CODE BEGIN P2P_TX_Start_1 */
+
+  /* USER CODE END P2P_TX_Start_1 */
+  TxConfigGeneric_t TxConfig;
+  uint8_t Wpayload[255] = {0};
+
+  memset(Wpayload, 0, P2Ppayload_len);
+  memcpy(Wpayload, P2Ppayload, P2Ppayload_len);
+
+  if ((TestState & TX_TEST_LORA) != TX_TEST_LORA)
+  {
+    TestState |= TX_TEST_LORA;
+
+    APP_TPRINTF("P2P Tx Start\r\n");
+
+    /* Radio initialization */
+    RadioEvents.TxDone = OnTxDone;
+    RadioEvents.RxDone = OnRxDone;
+    RadioEvents.TxTimeout = OnTxTimeout;
+    RadioEvents.RxTimeout = OnRxTimeout;
+    RadioEvents.RxError = OnRxError;
+    Radio.Init(&RadioEvents);
+
+    Radio.SetChannel(P2PParam.freq);
+
+      if (testParam.modulation == TEST_FSK)
+      {
+        /*fsk modulation*/
+        uint8_t syncword[] = { 0xC1, 0x94, 0xC1, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        TxConfig.fsk.ModulationShaping = (RADIO_FSK_ModShapings_t)((P2PParam.BTproduct == 0) ? 0 : P2PParam.BTproduct + 7);
+        TxConfig.fsk.Bandwidth = P2PParam.bandwidth;
+        TxConfig.fsk.FrequencyDeviation = P2PParam.fskDev;
+        TxConfig.fsk.BitRate = P2PParam.loraSf_datarate; /*BitRate*/
+        TxConfig.fsk.PreambleLen = 3;   /*in Byte        */
+        TxConfig.fsk.SyncWordLength = 3; /*in Byte        */
+        TxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
+        TxConfig.fsk.whiteSeed = 0x01FF; /*WhiteningSeed  */
+        TxConfig.fsk.HeaderType = RADIO_FSK_PACKET_VARIABLE_LENGTH; /* If the header is explicit, it will be transmitted in the GFSK packet. If the header is implicit, it will not be transmitted*/
+        TxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_CCIT;       /* Size of the CRC block in the GFSK packet*/
+        TxConfig.fsk.CrcPolynomial = 0x1021;
+        TxConfig.fsk.Whitening = RADIO_FSK_DC_FREE_OFF;
+        Radio.RadioSetTxGenericConfig(GENERIC_FSK, &TxConfig, P2PParam.power, TX_TIMEOUT_VALUE);
+      }
+      else if (P2PParam.modulation == TEST_LORA)
+	  {
+		/*lora modulation*/
+		TxConfig.lora.Bandwidth = (RADIO_LoRaBandwidths_t) P2PParam.bandwidth;
+		TxConfig.lora.SpreadingFactor = (RADIO_LoRaSpreadingFactors_t) P2PParam.loraSf_datarate; /*BitRate*/
+		TxConfig.lora.Coderate = (RADIO_LoRaCodingRates_t)P2PParam.codingRate;
+		TxConfig.lora.LowDatarateOptimize = (RADIO_Ld_Opt_t)P2PParam.lowDrOpt; /*0 inactive, 1 active, 2: auto*/
+		TxConfig.lora.PreambleLen = LORA_PREAMBLE_LENGTH;
+		TxConfig.lora.LengthMode = RADIO_LORA_PACKET_VARIABLE_LENGTH;
+		TxConfig.lora.CrcMode = RADIO_LORA_CRC_ON;
+		TxConfig.lora.IqInverted = RADIO_LORA_IQ_NORMAL;
+		Radio.RadioSetTxGenericConfig(GENERIC_LORA, &TxConfig, P2PParam.power, TX_TIMEOUT_VALUE);
+	  }
+      else if (testParam.modulation == TEST_BPSK)
+      {
+        TxConfig.bpsk.BitRate = P2PParam.loraSf_datarate; /*BitRate*/
+        Radio.RadioSetTxGenericConfig(GENERIC_BPSK, &TxConfig, P2PParam.power, TX_TIMEOUT_VALUE);
+      }
+	  else
+	  {
+		return -1; /*error*/
+	  }
+	/* Send payload once*/
+	Radio.Send(Wpayload, P2Ppayload_len);
+	
+	/* Wait Tx done/timeout */
+	UTIL_SEQ_WaitEvt(1 << CFG_SEQ_Evt_RadioOnTstRF);
+	Radio.Sleep();
+
+	if (RadioTxDone_flag == 1)
+	{
+		APP_TPRINTF("OnTxDone\r\n");
+	}
+
+	if (RadioTxTimeout_flag == 1)
+	{
+		APP_TPRINTF("OnTxTimeout\r\n");
+	}
+
+	if (RadioError_flag == 1)
+	{
+		APP_TPRINTF("OnRxError\r\n");
+	}
+
+	/*Delay between 2 consecutive Tx*/
+	HAL_Delay(500);
+	/* Reset TX Done or timeout flags */
+	RadioTxDone_flag = 0;
+	RadioTxTimeout_flag = 0;
+	RadioError_flag = 0;
+	
+    TestState &= ~TX_TEST_LORA;
+    return 0;
+  }
+  else
+  {
+    return -1;
+  }
+  /* USER CODE BEGIN P2P_TX_Start_2 */
+
+  /* USER CODE END P2P_TX_Start_2 */
+}
+
+
+int32_t P2P_RX_Start(void)
+{
+  /* USER CODE BEGIN P2P_RX_Start_1 */
+
+  /* USER CODE END P2P_RX_Start_1 */
+  /* init of PER counter */
+  uint32_t count_RxOk = 0;
+  uint32_t count_RxKo = 0;
+  uint32_t PER = 0;
+  RxConfigGeneric_t RxConfig = {0};
+
+  if (((TestState & RX_TEST_LORA) != RX_TEST_LORA))
+  {
+    TestState |= RX_TEST_LORA;
+	whileEnd = 1;
+
+    /* Radio initialization */
+    RadioEvents.TxDone = OnTxDone;
+    RadioEvents.RxDone = OnRxDone;
+    RadioEvents.TxTimeout = OnTxTimeout;
+    RadioEvents.RxTimeout = OnRxTimeout;
+    RadioEvents.RxError = OnRxError;
+    Radio.Init(&RadioEvents);
+
+      /* Rx config */
+      Radio.SetChannel(P2PParam.freq);
+
+      if (testParam.modulation == TEST_FSK)
+      {
+        /*fsk modulation*/
+        uint8_t syncword[] = { 0xC1, 0x94, 0xC1, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        RxConfig.fsk.ModulationShaping = (RADIO_FSK_ModShapings_t)((P2PParam.BTproduct == 0) ? 0 : P2PParam.BTproduct + 8);
+        RxConfig.fsk.Bandwidth = P2PParam.bandwidth;
+        RxConfig.fsk.BitRate = P2PParam.loraSf_datarate; /*BitRate*/
+        RxConfig.fsk.PreambleLen = 3; /*in Byte*/
+        RxConfig.fsk.SyncWordLength = 3; /*in Byte*/
+        RxConfig.fsk.SyncWord = syncword; /*SyncWord Buffer*/
+        RxConfig.fsk.PreambleMinDetect = RADIO_FSK_PREAMBLE_DETECTOR_08_BITS;
+        RxConfig.fsk.whiteSeed = 0x01FF; /*WhiteningSeed*/
+        RxConfig.fsk.LengthMode = RADIO_FSK_PACKET_VARIABLE_LENGTH; /* If the header is explicit, it will be transmitted in the GFSK packet. If the header is implicit, it will not be transmitted*/
+        RxConfig.fsk.CrcLength = RADIO_FSK_CRC_2_BYTES_CCIT;       /* Size of the CRC block in the GFSK packet*/
+        RxConfig.fsk.CrcPolynomial = 0x1021;
+        RxConfig.fsk.Whitening = RADIO_FSK_DC_FREE_OFF;
+        RxConfig.fsk.MaxPayloadLength = 255;
+        RxConfig.fsk.AddrComp = RADIO_FSK_ADDRESSCOMP_FILT_OFF;
+        Radio.RadioSetRxGenericConfig(GENERIC_FSK, &RxConfig, RX_CONTINUOUS_ON, 0);
+      }
+      else if (P2PParam.modulation == TEST_LORA)
+      {
+        /*Lora*/
+        RxConfig.lora.Bandwidth = (RADIO_LoRaBandwidths_t) P2PParam.bandwidth;
+        RxConfig.lora.SpreadingFactor = (RADIO_LoRaSpreadingFactors_t) P2PParam.loraSf_datarate; /*BitRate*/
+        RxConfig.lora.Coderate = (RADIO_LoRaCodingRates_t)P2PParam.codingRate;
+        RxConfig.lora.LowDatarateOptimize = (RADIO_Ld_Opt_t)P2PParam.lowDrOpt; /*0 inactive, 1 active, 2: auto*/
+        RxConfig.lora.PreambleLen = LORA_PREAMBLE_LENGTH;
+        RxConfig.lora.LengthMode = RADIO_LORA_PACKET_VARIABLE_LENGTH;
+        RxConfig.lora.CrcMode = RADIO_LORA_CRC_ON;
+        RxConfig.lora.IqInverted = RADIO_LORA_IQ_NORMAL;
+        Radio.RadioSetRxGenericConfig(GENERIC_LORA, &RxConfig, RX_CONTINUOUS_ON, LORA_SYMBOL_TIMEOUT);
+      }
+      else
+      {
+        return -1; /* error */
+      }
+	  
+	while(whileEnd)
+	{
+      if (P2PParam.lna == 0)
+      {
+        Radio.Rx(RX_TIMEOUT_VALUE);
+      }
+      else
+      {
+        Radio.RxBoosted(RX_TIMEOUT_VALUE);
+      }
+      /* Wait Rx done/timeout */
+      UTIL_SEQ_WaitEvt(1 << CFG_SEQ_Evt_RadioOnTstRF);
+      Radio.Sleep();
+
+      if (RadioRxDone_flag == 1)
+      {
+        int16_t rssi = last_rx_rssi;
+        int8_t LoraSnr_FskCfo = last_rx_LoraSnr_FskCfo;
+		uint8_t Rpayload[255];
+		uint16_t Rpayload_len = RXpayload_len;
+		
+        APP_TPRINTF("OnRxDone\r\n");
+        if (testParam.modulation == TEST_FSK)
+        {
+          APP_TPRINTF("RssiValue=%d dBm, cfo=%dkHz\r\n", rssi, LoraSnr_FskCfo);
+        }
+	else if (P2PParam.modulation == TEST_LORA)
+        {
+          APP_TPRINTF("RssiValue=%d dBm, SnrValue=%ddB\r\n", rssi, LoraSnr_FskCfo);
+
+		  memset(Rpayload, 0, Rpayload_len);
+		  memcpy(Rpayload, RXpayload, Rpayload_len);
+		  APP_TPRINTF("R payload = ");
+		  for(int i = 0; i < Rpayload_len; i ++)
+		    APP_PRINTF("%02X ", Rpayload[i]);
+		  APP_PRINTF("\r\n");
+		  
+        }
+      }
+
+      if (RadioError_flag == 1)
+      {
+        APP_TPRINTF("OnRxError\r\n");
+      }
+
+      /*check flag*/
+      if ((RadioRxTimeout_flag == 1) || (RadioError_flag == 1))
+      {
+        count_RxKo++;
+      }
+      if (RadioRxDone_flag == 1)
+      {
+        count_RxOk++;
+      }
+      /* Reset timeout flag */
+      RadioRxDone_flag = 0;
+      RadioRxTimeout_flag = 0;
+      RadioError_flag = 0;
+	  
+	  if(whileEnd == 0)
+	  {
+	  	//i = nb_packet;
+	  }
+	}
+    TestState &= ~RX_TEST_LORA;
+    return 0;
+  }
+  else
+  {
+    return -1;
+  }
+  /* USER CODE BEGIN P2P_RX_Start_2 */
+
+  /* USER CODE END P2P_RX_Start_2 */
+}
+
 
 
 /* USER CODE END PrFD */

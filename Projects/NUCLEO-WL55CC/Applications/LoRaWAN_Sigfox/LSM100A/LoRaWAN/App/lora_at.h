@@ -113,6 +113,7 @@ typedef enum eATEerror
 #define AT_RX2FQ      "+RX2FQ"
 #define AT_TXP        "+TXP"
 #define AT_PGSLOT     "+PGSLOT"
+#define AT_NWKTYPE    "+NWKTYPE"
 
 /* Radio tests commands */
 #define AT_TTONE      "+TTONE"
@@ -128,6 +129,9 @@ typedef enum eATEerror
 #define AT_MTX        "+MTX"
 #define AT_MRX        "+MRX"
 #define AT_CERTISEND  "+CERTISEND" //LCTT SEND CMD - 21.11.12, mkchoi
+#define AT_PCONF	  "+PCONF"
+#define AT_PSEND  	  "+PSEND"
+#define AT_PRECV  	  "+PRECV"
 
 /* Information command */
 #define AT_BAT        "+BAT"
@@ -167,7 +171,7 @@ void AT_event_join(LmHandlerJoinParams_t *params);
   * @param appData
   * @param params
   */
-void AT_event_receive(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
+void AT_event_receive(int flag, LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
 /**
   * @brief  Event callback on confirmed acknowledge
@@ -540,6 +544,21 @@ ATEerror_t AT_PingSlot_get(const char *param);
   */
 ATEerror_t AT_PingSlot_set(const char *param);
 
+/**
+  * @brief  Get the network type
+  * @param  param String parameter
+  * @retval AT_OK
+  */
+ATEerror_t AT_Network_Type_get(const char *param);
+
+/**
+  * @brief  Set the network type
+  * @param  param String parameter
+  * @retval AT_OK
+  */
+ATEerror_t AT_Network_Type_set(const char *param);
+
+
 /* --------------- Radio tests commands --------------- */
 /**
   * @brief  Start Tx test
@@ -617,6 +636,14 @@ ATEerror_t AT_test_Modulation_Tx(const char *param);
   * @retval AT_OK
   */
 ATEerror_t AT_test_Modulation_Rx(const char *param);
+
+ATEerror_t AT_P2P_get_config(const char *param);
+
+ATEerror_t AT_P2P_set_config(const char *param);
+
+ATEerror_t AT_P2P_Tx(const char *param);
+
+ATEerror_t AT_P2P_Rx(const char *param);
 
 /**
   * @brief  Write Radio Register

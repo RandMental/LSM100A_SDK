@@ -35,6 +35,10 @@ uint32_t active_app;
   */
 int main(void)
 {
+#ifdef FEATURE_SUPPORT_IAP_BOOTLOADER  
+  SCB->VTOR = START_FLASH_ADDRESS;
+#endif /* FEATURE_SUPPORT_IAP_BOOTLOADER */
+
   HAL_Init();
 
   SystemClock_Config();

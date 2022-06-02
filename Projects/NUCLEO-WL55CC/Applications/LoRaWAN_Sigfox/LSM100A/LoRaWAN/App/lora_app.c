@@ -78,7 +78,7 @@ static void OnTxData(LmHandlerTxParams_t *params);
   * @param appData data received in the last Rx
   * @param params status of last Rx
   */
-static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
+static void OnRxData(int flag, LmHandlerAppData_t *appData, LmHandlerRxParams_t *params);
 
 /*!
  * Will be called each time a Radio IRQ is handled by the MAC layer
@@ -188,12 +188,12 @@ void LoRaWAN_Init(void)
 
 /* USER CODE END PrFD */
 
-static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
+static void OnRxData(int flag, LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
   /* USER CODE BEGIN OnRxData_1 */
   if ((appData != NULL) || (params != NULL))
   {
-    AT_event_receive(appData, params);
+    AT_event_receive(flag, appData, params);
   }
   /* USER CODE END OnRxData_1 */
 }

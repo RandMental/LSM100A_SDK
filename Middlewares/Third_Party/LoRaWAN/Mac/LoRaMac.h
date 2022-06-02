@@ -2811,4 +2811,7 @@ LoRaMacStatus_t LoRaMacDeInitialization( void );
 }
 #endif
 
+#if !defined(FEATURE_NOT_SUPPORT_LORA_EE)
+extern int16_t E2P_LORA_Read_Class(void);
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE*/
 #endif // __LORAMAC_H__

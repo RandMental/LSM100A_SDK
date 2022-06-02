@@ -298,6 +298,10 @@ static void DisplayBeaconUpdate(LmHandlerBeaconParams_t *params);
 
 static LmHandlerErrorStatus_t LmHandlerSetSystemMaxRxError( uint32_t maxErrorInMs );
 
+#if !defined(FEATURE_NOT_SUPPORT_LORA_EE)
+static void PrintKey( KeyIdentifier_t key );
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE) */
+
 /* Exported functions ---------------------------------------------------------*/
 LmHandlerErrorStatus_t LmHandlerInit( LmHandlerCallbacks_t *handlerCallbacks )
 {
@@ -377,6 +381,45 @@ LmHandlerErrorStatus_t LmHandlerConfigure( LmHandlerParams_t *handlerParams )
     mibReq.Type = MIB_JOIN_EUI;
     LoRaMacMibGetRequestConfirm( &mibReq );
     memcpy1( CommissioningParams.JoinEui, mibReq.Param.JoinEui, 8 );
+
+#if !defined(FEATURE_NOT_SUPPORT_LORA_EE)
+	uint8_t Key[16];
+	uint8_t eui[8];
+
+	E2P_LORA_Read_Appeui(eui);
+    mibReq.Type = MIB_JOIN_EUI;
+	mibReq.Param.AppKey = (uint8_t*)eui;
+	LoRaMacMibSetRequestConfirm(&mibReq);
+    LoRaMacMibGetRequestConfirm( &mibReq );
+    memcpy1( CommissioningParams.JoinEui, mibReq.Param.JoinEui, 8 );
+
+	E2P_LORA_Read_Appkey(Key);
+	mibReq.Type = MIB_APP_KEY;
+	mibReq.Param.AppKey = (uint8_t*)Key;
+	LoRaMacMibSetRequestConfirm(&mibReq);
+	
+	E2P_LORA_Read_Nwkkey(Key);
+	mibReq.Type = MIB_NWK_KEY;
+	mibReq.Param.AppKey = (uint8_t*)Key;
+	LoRaMacMibSetRequestConfirm(&mibReq);
+
+	E2P_LORA_Read_App_S_key(Key);
+	mibReq.Type = MIB_APP_S_KEY;
+	mibReq.Param.AppKey = (uint8_t*)Key;
+	LoRaMacMibSetRequestConfirm(&mibReq);
+
+	E2P_LORA_Read_Nwk_S_key(Key);
+	mibReq.Type = MIB_NWK_S_KEY;
+	mibReq.Param.AppKey = (uint8_t*)Key;
+	LoRaMacMibSetRequestConfirm(&mibReq);
+	
+    MW_LOG(TS_OFF, VLEVEL_M, "------ OTAA ------\r\n");
+    PrintKey(APP_KEY);
+    PrintKey(NWK_KEY);
+    MW_LOG(TS_OFF, VLEVEL_M, "------ ABP  ------\r\n");
+    PrintKey(APP_S_KEY);
+    PrintKey(NWK_S_KEY);
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE */	
 
 #if ( STATIC_DEVICE_ADDRESS != 1 )
     CommissioningParams.DevAddr = LmHandlerCallbacks->GetDevAddr();
@@ -966,8 +1009,18 @@ static void McpsIndication( McpsIndication_t *mcpsIndication, LoRaMacRxStatus_t 
     appData.BufferSize = mcpsIndication->BufferSize;
     appData.Buffer = mcpsIndication->Buffer;
 
-    LmHandlerCallbacks->OnRxData(&appData, &RxParams);
-
+	if(mcpsIndication->McpsIndication == MCPS_UNCONFIRMED)
+	{
+    	LmHandlerCallbacks->OnRxData(0, &appData, &RxParams );
+	}
+	else if(mcpsIndication->McpsIndication == MCPS_CONFIRMED)
+	{
+		LmHandlerCallbacks->OnRxData(1, &appData, &RxParams );
+	}
+	else
+	{
+		LmHandlerCallbacks->OnRxData(-1, &appData, &RxParams );
+	}
     if ((LmHandlerCallbacks->OnSysTimeUpdate != NULL) && (mcpsIndication->DeviceTimeAnsReceived == true))
     {
         LmHandlerCallbacks->OnSysTimeUpdate( );
@@ -1015,7 +1068,11 @@ static void MlmeConfirm( MlmeConfirm_t *mlmeConfirm )
             {
                 // Status is OK, node has joined the network
                 JoinParams.Status = LORAMAC_HANDLER_SUCCESS;
+#if defined(FEATURE_NOT_SUPPORT_LORA_EE)
                 LmHandlerRequestClass(LmHandlerParams.DefaultClass);
+#else
+				LmHandlerRequestClass((DeviceClass_t)E2P_LORA_Read_Class());
+#endif /* FEATURE_NOT_SUPPORT_LORA_EE */
             }
             else
             {
@@ -1099,7 +1156,7 @@ static void MlmeIndication( MlmeIndication_t *mlmeIndication, LoRaMacRxStatus_t 
     RxParams.RxSlot = RxStatus->RxSlot;
     if( RxParams.Status != LORAMAC_EVENT_INFO_STATUS_BEACON_LOCKED )
     {
-        LmHandlerCallbacks->OnRxData( NULL, &RxParams );
+        LmHandlerCallbacks->OnRxData(-1, NULL, &RxParams );
     }
 
     switch( mlmeIndication->MlmeIndication )
@@ -1925,6 +1982,36 @@ static void DisplayClassUpdate(DeviceClass_t deviceClass)
 {
     MW_LOG(TS_OFF, VLEVEL_M, "Switch to Class %c done\r\n", "ABC"[deviceClass]);
 }
+
+#if !defined(FEATURE_NOT_SUPPORT_LORA_EE)
+static void PrintKey( KeyIdentifier_t key )
+{
+    SecureElementStatus_t retval = SECURE_ELEMENT_ERROR;
+    Key_t *keyItem;
+    retval = SecureElementGetKeyByID(key, &keyItem);
+    if (retval == SECURE_ELEMENT_SUCCESS)
+    {
+        if (key == APP_KEY)
+        {
+            MW_LOG(TS_OFF, VLEVEL_M, ">> AppKey:      ");
+        }
+        else if (key == NWK_KEY)
+        {
+            MW_LOG(TS_OFF, VLEVEL_M, ">> NwkKey:      ");
+        }
+        else if (key == APP_S_KEY)
+        {
+            MW_LOG(TS_OFF, VLEVEL_M, ">> AppSKey:     ");
+        }
+        else if (key == NWK_S_KEY)
+        {
+            MW_LOG(TS_OFF, VLEVEL_M, ">> NwkSKey:     ");
+        }
+        MW_LOG(TS_OFF, VLEVEL_M, "%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X:%02X\r\n",
+               HEX16(keyItem->KeyValue));
+    }
+}
+#endif /* !FEATURE_NOT_SUPPORT_LORA_EE) */
 
 #if ( LORAMAC_CLASSB_ENABLED == 1 )
 static void DisplayBeaconUpdate(LmHandlerBeaconParams_t *params)

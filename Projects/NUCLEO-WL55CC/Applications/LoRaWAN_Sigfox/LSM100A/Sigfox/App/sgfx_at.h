@@ -104,6 +104,8 @@ typedef enum eATEerror
 #define AT_RL         "$RL"
 #define AT_SL         "$SL"
 #define AT_SSWVER     "$SSWVER"
+#define AT_SP2P       "$SP2P"
+#define AT_RP2P       "$RP2P"
 
 
 /* USER CODE BEGIN EM */
@@ -358,6 +360,22 @@ ATEerror_t AT_test_sl(const char *param);
   * @retval AT_OK
   */
 ATEerror_t AT_sw_version_get(const char *param);
+
+
+/**
+  * @brief  Send data for P2P
+  * @param  param string parameter
+  * @retval AT_OK
+  */
+ATEerror_t AT_Send_P2P_Data(const char *param);
+
+/**
+  * @brief  Receive data for P2P
+  * @param  None
+  * @retval AT_OK
+  */
+ATEerror_t AT_Receive_P2P_Data(const char *param);
+
 
 /* USER CODE BEGIN EFP */
 

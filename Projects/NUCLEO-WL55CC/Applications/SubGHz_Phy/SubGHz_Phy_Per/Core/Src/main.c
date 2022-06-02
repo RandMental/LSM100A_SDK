@@ -67,6 +67,10 @@ int main(void)
 
   /* USER CODE END 1 */
 
+#ifdef FEATURE_SUPPORT_IAP_BOOTLOADER  
+  SCB->VTOR = START_FLASH_ADDRESS;
+#endif /* FEATURE_SUPPORT_IAP_BOOTLOADER */
+
   /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */

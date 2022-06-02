@@ -170,10 +170,12 @@ int SystemApp_Init(void)
     APP_PPRINTF(">> API MODE                 \r\n");
 #endif /* FEATURE_SIGFOX_API_MODE */
   }
+  
+ #ifdef FEATURE_SUPPORT_IAP_BOOTLOADER 
+  APP_PPRINTF(">> IAP_VERSION : %s              	\r\n", IAP_VERSION);
+#endif /* FEATURE_SUPPORT_IAP_BOOTLOADER */
 
   APP_PPRINTF("-------------------------------------\r\n");
-
-
 
   return app_set;
 }

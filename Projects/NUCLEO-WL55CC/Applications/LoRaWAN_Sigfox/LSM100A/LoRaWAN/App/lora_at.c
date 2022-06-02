@@ -263,7 +263,7 @@ void AT_event_join(LmHandlerJoinParams_t *params)
   /* USER CODE END AT_event_join_2 */
 }
 
-void AT_event_receive(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
+void AT_event_receive(int flag, LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
 {
   /* USER CODE BEGIN AT_event_receive_1 */
 
@@ -284,13 +284,30 @@ void AT_event_receive(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
     }
 
     /*asynchronous notification to the host*/
-    AT_PRINTF("+EVT:%d:%02X:", appData->Port, ReceivedDataSize);
+	if(flag == 1) //Confirmed Data Receive
+	{
+	  AT_PRINTF("+EVT:RECV_CONFIRMED:%d:%02X:", appData->Port, ReceivedDataSize);
+	}
+	else if(flag == 0)
+	{
+	  AT_PRINTF("+EVT:RECV_UNCONFIRMED:%d:%02X:", appData->Port, ReceivedDataSize);
+	}
 
     for (uint8_t i = 0; i < ReceivedDataSize; i++)
     {
-      AT_PRINTF("%02x", appData->Buffer[i]);
+      AT_PRINTF("%02X", appData->Buffer[i]);
     }
     AT_PRINTF("\r\n");
+	if(flag == 1) //If Confirmed Data Received
+	{
+		appData->Port = 0xFF;
+	  	appData->Buffer = NULL;
+		appData->BufferSize = 0;
+		
+		AT_PRINTF("+EVT:UNCONFIRMED UPLINK\r\n");	
+		
+	  	LmHandlerSend(appData, LORAMAC_HANDLER_UNCONFIRMED_MSG, NULL, true);	
+	}
   }
 
   if (params != NULL)
@@ -432,7 +449,9 @@ ATEerror_t AT_JoinEUI_set(const char *param)
   {
     return AT_PARAM_ERROR;
   }
-
+				  
+  E2P_LORA_Write_Appeui(JoinEui);
+				  
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetAppEUI(JoinEui))
   {
     return AT_ERROR;
@@ -454,6 +473,7 @@ ATEerror_t AT_NwkKey_get(const char *param)
   {
     return AT_ERROR;
   }
+  
   print_16_02x(nwkKey);
 
   return AT_OK;
@@ -472,6 +492,8 @@ ATEerror_t AT_NwkKey_set(const char *param)
   {
     return AT_PARAM_ERROR;
   }
+  
+  E2P_LORA_Write_Nwkkey(nwkKey);
 
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetNwkKey(nwkKey))
   {
@@ -494,6 +516,7 @@ ATEerror_t AT_AppKey_get(const char *param)
   {
     return AT_ERROR;
   }
+  
   print_16_02x(appKey);
 
   return AT_OK;
@@ -512,6 +535,8 @@ ATEerror_t AT_AppKey_set(const char *param)
   {
     return AT_PARAM_ERROR;
   }
+
+  E2P_LORA_Write_Appkey(appKey);
 
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetAppKey(appKey))
   {
@@ -534,6 +559,7 @@ ATEerror_t AT_NwkSKey_get(const char *param)
   {
     return AT_ERROR;
   }
+  
   print_16_02x(nwkSKey);
 
   return AT_OK;
@@ -552,6 +578,8 @@ ATEerror_t AT_NwkSKey_set(const char *param)
   {
     return AT_PARAM_ERROR;
   }
+
+  E2P_LORA_Write_Nwk_S_key(nwkSKey);
 
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetNwkSKey(nwkSKey))
   {
@@ -574,6 +602,7 @@ ATEerror_t AT_AppSKey_get(const char *param)
   {
     return AT_ERROR;
   }
+  
   print_16_02x(appSKey);
 
   return AT_OK;
@@ -592,6 +621,8 @@ ATEerror_t AT_AppSKey_set(const char *param)
   {
     return AT_PARAM_ERROR;
   }
+  
+  E2P_LORA_Write_App_S_key(appSKey);
 
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetAppSKey(appSKey))
   {
@@ -729,9 +760,8 @@ ATEerror_t AT_NetworkID_set(const char *param)
 
 ATEerror_t AT_Join_get(const char *param)
 {
-	print_d(E2P_LORA_Read_Type());
+	print_d(E2P_LORA_Read_Type()-1);
 	return AT_OK;
-
 }
 
 
@@ -1550,6 +1580,48 @@ ATEerror_t AT_PingSlot_set(const char *param)
   /* USER CODE END AT_PingSlot_set_2 */
 }
 
+ATEerror_t AT_Network_Type_get(const char *param)
+{
+  /* USER CODE BEGIN AT_Network_Type_get_1 */
+
+  /* USER CODE END AT_Network_Type_get_1 */
+
+  if(E2P_LORA_Read_Network_Type() == PUBLIC_NETWORK)
+  	AT_PRINTF("Public Mode\r\n");
+  else
+  	AT_PRINTF("Private Mode\r\n");
+  
+  return AT_OK;
+  /* USER CODE BEGIN AT_Network_Type_get_2 */
+	
+  /* USER CODE END AT_Network_Type_get_2 */
+}
+
+ATEerror_t AT_Network_Type_set(const char *param)
+{
+  /* USER CODE BEGIN AT_Network_Type_set_1 */
+
+  /* USER CODE END AT_Network_Type_set_1 */
+  switch (param[0])
+  {
+    case '0':
+	  AT_PRINTF("Public Mode\r\n");
+	  E2P_LORA_Write_Network_Type(PUBLIC_NETWORK);
+      break;
+    case '1':
+	  AT_PRINTF("Private Mode\r\n");
+      E2P_LORA_Write_Network_Type(PRIVATE_NETWORK);
+      break;
+    default:
+      return AT_PARAM_ERROR;
+  }
+
+  return AT_OK;
+  /* USER CODE BEGIN AT_Network_Type_set_2 */
+
+  /* USER CODE END AT_Network_Type_set_2 */
+}
+
 /* --------------- Radio tests commands --------------- */
 ATEerror_t AT_test_txTone(const char *param)
 {
@@ -1888,9 +1960,6 @@ ATEerror_t AT_test_tx(const char *param)
 
 ATEerror_t AT_test_rx(const char *param)
 {
-#if 0
-
-#else
   /* USER CODE BEGIN AT_test_rx_1 */
 
   /* USER CODE END AT_test_rx_1 */
@@ -1913,7 +1982,9 @@ ATEerror_t AT_test_rx(const char *param)
   {
     return AT_BUSY_ERROR;
   }
-#endif
+  /* USER CODE BEGIN AT_test_rx_2 */
+
+  /* USER CODE END AT_test_rx_2 */
 }
 ATEerror_t AT_Certif(const char *param)
 {
@@ -2060,6 +2131,346 @@ ATEerror_t AT_test_Modulation_Rx(const char *param)
 
   /* USER CODE END AT_test_txTone_2 */
 }
+
+ATEerror_t AT_P2P_get_config(const char *param)
+{
+  /* USER CODE BEGIN AT_P2P_get_config_1 */
+
+  /* USER CODE END AT_P2P_get_config_1 */
+  P2PParameter_t P2PParam;
+  uint32_t loraBW[7] = {7812, 15625, 31250, 62500, 125000, 250000, 500000};
+
+  P2P_get_config(&P2PParam);
+
+  AT_PRINTF("1: Freq= %d Hz\r\n", P2PParam.freq);
+  AT_PRINTF("2: Power= %d dBm\r\n", P2PParam.power);
+
+  if (P2PParam.modulation == TEST_FSK)
+  {
+    /*fsk*/
+    AT_PRINTF("3: Bandwidth= %d Hz\r\n", P2PParam.bandwidth);
+    AT_PRINTF("4: FSK datarate= %d bps\r\n", P2PParam.loraSf_datarate);
+    AT_PRINTF("5: Coding Rate not applicable\r\n");
+    AT_PRINTF("6: LNA State= %d  \r\n", P2PParam.lna);
+    AT_PRINTF("7: PA Boost State= %d  \r\n", P2PParam.paBoost);
+    AT_PRINTF("8: modulation FSK\r\n");
+    AT_PRINTF("9: Payload len= %d Bytes\r\n", P2PParam.payloadLen);
+    AT_PRINTF("10: FSK deviation= %d Hz\r\n", P2PParam.fskDev);
+    AT_PRINTF("11: LowDRopt not applicable\r\n");
+    AT_PRINTF("12: FSK gaussian BT product= %d \r\n", P2PParam.BTproduct);
+  }
+  else if (P2PParam.modulation == TEST_LORA)
+  {
+    /*Lora*/
+    AT_PRINTF("3: Bandwidth= %d (=%d Hz)\r\n", P2PParam.bandwidth, loraBW[P2PParam.bandwidth]);
+    AT_PRINTF("4: SF= %d \r\n", P2PParam.loraSf_datarate);
+    AT_PRINTF("5: CR= %d (=4/%d) \r\n", P2PParam.codingRate, P2PParam.codingRate + 4);
+    AT_PRINTF("6: LNA State= %d  \r\n", P2PParam.lna);
+    AT_PRINTF("7: PA Boost State= %d  \r\n", P2PParam.paBoost);
+    AT_PRINTF("8: modulation LORA\r\n");
+    AT_PRINTF("9: Payload len= %d Bytes\r\n", P2PParam.payloadLen);
+    AT_PRINTF("10: Frequency deviation not applicable\r\n");
+    AT_PRINTF("11: LowDRopt[0 to 2]= %d \r\n", P2PParam.lowDrOpt);
+    AT_PRINTF("12 BT product not applicable\r\n");
+  }
+  else
+  {
+    AT_PRINTF("4: BPSK datarate= %d bps\r\n", P2PParam.loraSf_datarate);
+  }
+
+  AT_PRINTF("can be copy/paste in set cmd: AT+TCONF=%d:%d:%d:%d:4/%d:%d:%d:%d:%d:%d:%d:%d\r\n", P2PParam.freq,
+            P2PParam.power,
+            P2PParam.bandwidth, P2PParam.loraSf_datarate, P2PParam.codingRate + 4, \
+            P2PParam.lna, P2PParam.paBoost, P2PParam.modulation, P2PParam.payloadLen, P2PParam.fskDev, P2PParam.lowDrOpt,
+            P2PParam.BTproduct);
+
+  return AT_OK;
+  /* USER CODE BEGIN AT_P2P_get_config_2 */
+
+  /* USER CODE END AT_P2P_get_config_2 */
+}
+
+ATEerror_t AT_P2P_set_config(const char *param)
+{
+  /* USER CODE BEGIN AT_P2P_set_config_1 */
+
+  /* USER CODE END AT_P2P_set_config_1 */
+  P2PParameter_t P2PParam = {0};
+  uint32_t freq;
+  int32_t power;
+  uint32_t bandwidth;
+  uint32_t loraSf_datarate;
+  uint32_t codingRate;
+  uint32_t lna;
+  uint32_t paBoost;
+  uint32_t modulation;
+  uint32_t payloadLen;
+  uint32_t fskDeviation;
+  uint32_t lowDrOpt;
+  uint32_t BTproduct;
+  uint32_t crNum;
+
+  if (13 == tiny_sscanf(param, "%d:%d:%d:%d:%d/%d:%d:%d:%d:%d:%d:%d:%d",
+                        &freq,
+                        &power,
+                        &bandwidth,
+                        &loraSf_datarate,
+                        &crNum,
+                        &codingRate,
+                        &lna,
+                        &paBoost,
+                        &modulation,
+                        &payloadLen,
+                        &fskDeviation,
+                        &lowDrOpt,
+                        &BTproduct))
+
+  {
+    /*extend to new format for extended*/
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+  /*get current config*/
+  P2P_get_config(&P2PParam);
+
+  /* 8: modulation check and set */
+  /* first check because required for others */
+  if (modulation == TEST_FSK)
+  {
+    P2PParam.modulation = TEST_FSK;
+  }
+  else if (modulation == TEST_LORA)
+  {
+    P2PParam.modulation = TEST_LORA;
+  }
+  else if (modulation == TEST_BPSK)
+  {
+    P2PParam.modulation = TEST_BPSK;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+  
+  /* 1: frequency check and set */
+  if (freq < 1000)
+  {
+    /*given in MHz*/
+    P2PParam.freq = freq * 1000000;
+  }
+  else
+  {
+    P2PParam.freq = freq;
+  }
+
+  /* 2: power check and set */
+  if ((power >= -9) && (power <= 22))
+  {
+    P2PParam.power = power;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 3: bandwidth check and set */
+  if ((P2PParam.modulation == TEST_FSK) && (bandwidth >= 4800) && (bandwidth <= 467000))
+  {
+    P2PParam.bandwidth = bandwidth;
+  }
+  else if ((P2PParam.modulation == TEST_LORA) && (bandwidth <= BW_500kHz))
+  {
+    P2PParam.bandwidth = bandwidth;
+  }
+  else if (P2PParam.modulation == TEST_BPSK)
+  {
+    /* Not used */
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 4: datarate/spreading factor check and set */
+  if ((P2PParam.modulation == TEST_FSK) && (loraSf_datarate >= 600) && (loraSf_datarate <= 300000))
+  {
+    P2PParam.loraSf_datarate = loraSf_datarate;
+  }
+  else if ((P2PParam.modulation == TEST_LORA) && (loraSf_datarate >= 5) && (loraSf_datarate <= 12))
+  {
+    P2PParam.loraSf_datarate = loraSf_datarate;
+  }
+  else if ((P2PParam.modulation == TEST_BPSK) && (loraSf_datarate <= 1000))
+  {
+    P2PParam.loraSf_datarate = loraSf_datarate;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 5: coding rate check and set */
+  if ((P2PParam.modulation == TEST_FSK) || (P2PParam.modulation == TEST_BPSK))
+  {
+    /* Not used */
+  }
+  else if ((P2PParam.modulation == TEST_LORA) && ((codingRate >= 5) && (codingRate <= 8)))
+  {
+    P2PParam.codingRate = codingRate - 4;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 6: lna state check and set */
+  if (lna <= 1)
+  {
+    P2PParam.lna = lna;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 7: pa boost check and set */
+  if (paBoost <= 1)
+  {
+    /* Not used */
+    P2PParam.paBoost = paBoost;
+  }
+
+  /* 9: payloadLen check and set */
+  if ((payloadLen != 0) && (payloadLen < 256))
+  {
+    P2PParam.payloadLen = payloadLen;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 10: fsk Deviation check and set */
+  if ((P2PParam.modulation == TEST_LORA) || (P2PParam.modulation == TEST_BPSK))
+  {
+    /* Not used */
+  }
+  else if ((P2PParam.modulation == TEST_FSK) && ((fskDeviation >= 600) && (fskDeviation <= 200000)))
+  {
+    /*given in MHz*/
+    P2PParam.fskDev = fskDeviation;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 11: low datarate optimization check and set */
+  if ((P2PParam.modulation == TEST_FSK) || (P2PParam.modulation == TEST_BPSK))
+  {
+    /* Not used */
+  }
+  else if ((P2PParam.modulation == TEST_LORA) && (lowDrOpt <= 2))
+  {
+    P2PParam.lowDrOpt = lowDrOpt;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+  /* 12: FSK gaussian BT product check and set */
+  if ((P2PParam.modulation == TEST_LORA) || (P2PParam.modulation == TEST_BPSK))
+  {
+    /* Not used */
+  }
+  else if ((P2PParam.modulation == TEST_FSK) && (BTproduct <= 4))
+  {
+    /*given in MHz*/
+    P2PParam.BTproduct = BTproduct;
+  }
+  else
+  {
+    return AT_PARAM_ERROR;
+  }
+
+
+  P2P_set_config(&P2PParam);
+
+  return AT_OK;
+  /* USER CODE BEGIN AT_P2P_set_config_2 */
+
+  /* USER CODE END AT_P2P_set_config_2 */
+}
+
+ATEerror_t AT_P2P_Tx(const char *param)
+{
+  /* USER CODE BEGIN AT_P2P_Tx_1 */
+
+  /* USER CODE END AT_P2P_Tx_1 */
+  P2PParameter_t P2PParam = {0};
+  uint8_t P2Ppayload[LORAWAN_APP_DATA_BUFFER_MAX_SIZE];
+  const char *buf = param;
+  uint16_t bufSize = strlen(param);
+  uint32_t appPort;
+  uint8_t P2Ppayload_len = 0;
+  char hex[3] = {0, 0, 0};
+
+  AT_PRINTF("\r\nP2P Tx START\r\n");
+
+  while ((P2Ppayload_len < LORAWAN_APP_DATA_BUFFER_MAX_SIZE) && (bufSize > 1))
+  {
+    hex[0] = buf[P2Ppayload_len * 2];
+    hex[1] = buf[P2Ppayload_len * 2 + 1];
+    if (tiny_sscanf(hex, "%hhx", &P2Ppayload[P2Ppayload_len]) != 1)
+    {
+      return AT_PARAM_ERROR;
+    }
+    P2Ppayload_len++;
+    bufSize -= 2;
+  }
+  
+  P2PParam.payloadLen = P2Ppayload_len;
+  
+  APP_PRINTF("Hex P2P payload = ");  
+  for(int i = 0; i < P2Ppayload_len; i ++)
+  	 APP_PRINTF("%02X ", P2Ppayload[i]);
+  APP_PRINTF("\r\n");
+  if (0U == P2P_TX_Start(P2Ppayload, P2Ppayload_len))
+  {
+    return AT_OK;
+  }
+  else
+  {
+    return AT_BUSY_ERROR;
+  }
+  /* USER CODE BEGIN AT_P2P_Tx_2 */
+
+  /* USER CODE END AT_P2P_Tx_2 */
+}
+
+ATEerror_t AT_P2P_Rx(const char *param)
+{
+  /* USER CODE BEGIN AT_P2P_Rx_1 */
+
+  /* USER CODE END AT_P2P_Rx_1 */
+  AT_PRINTF("\r\nP2P Rx START\r\n");
+  if (0U == P2P_RX_Start())
+  {
+  	AT_PRINTF("\r\nP2P Rx STOP\r\n");
+    return AT_OK;
+  }
+  else
+  {
+    return AT_BUSY_ERROR;
+  }
+  /* USER CODE BEGIN AT_P2P_Rx_2 */
+
+  /* USER CODE END AT_P2P_Rx_2 */
+}
+
 
 ATEerror_t AT_write_register(const char *param)
 {

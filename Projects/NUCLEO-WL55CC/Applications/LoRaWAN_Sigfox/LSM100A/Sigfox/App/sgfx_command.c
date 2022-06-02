@@ -392,7 +392,28 @@ static const struct ATCommand_s ATCommand[] =
     .run = AT_return_error,
   },
 
-  
+  {
+    .string = AT_SP2P,
+    .size_string = sizeof(AT_SP2P) - 1,
+  #ifndef NO_HELP
+    .help_string = "Send data for P2P\r\n",
+  #endif /* !NO_HELP */
+    .get = AT_return_error,
+    .set = AT_Send_P2P_Data,
+    .run = AT_return_error,
+  },
+
+  {
+    .string = AT_RP2P,
+    .size_string = sizeof(AT_RP2P) - 1,
+#ifndef NO_HELP
+    .help_string = "Receive data for P2P\r\n",
+#endif /* !NO_HELP */
+    .get = AT_return_error,
+    .set = AT_return_error,
+    .run = AT_Receive_P2P_Data,
+  },
+
 };
 
 static char command[CMD_SIZE];

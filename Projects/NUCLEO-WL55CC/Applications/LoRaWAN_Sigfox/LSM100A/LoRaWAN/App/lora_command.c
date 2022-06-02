@@ -60,7 +60,7 @@ struct ATCommand_s
 
 /* Private define ------------------------------------------------------------*/
 #define CMD_SIZE                        540
-#define CIRC_BUFF_SIZE                  8
+#define CIRC_BUFF_SIZE                  16
 
 /* USER CODE BEGIN PD */
 
@@ -577,6 +577,42 @@ static const struct ATCommand_s ATCommand[] =
 	.set = AT_return_error_l,
 	.run = AT_test_Modulation_Rx,
   },
+  
+  {
+	.string = AT_PCONF,
+	.size_string = sizeof(AT_PCONF) - 1,
+#ifndef NO_HELP
+	.help_string = "AT"AT_PCONF"=<Freq in Hz>:<Power in dBm>:<Lora Bandwidth <0 to 6>, or Rx FSK Bandwidth in Hz>:<Lora SF or FSK datarate (bps)>:<CodingRate 4/5, 4/6, 4/7, 4/8>:\r\n\
+         <Lna>:<PA Boost>:<Modulation 0:FSK, 1:Lora, 2:BPSK>:<PayloadLen in Bytes>:<FskDeviation in Hz>:<LowDrOpt 0:off, 1:on, 2:Auto>:\r\n\
+         <BTproduct: 0:no Gaussian Filter Applied, 1:BT=0,3, 2:BT=0,5, 3:BT=0,7, 4:BT=1><CR>. Configure RF test\r\n"
+    "AT+PCONF=868000000:14:4:12:4/5:0:0:1:16:25000:2:3 /*LORA*/\r\n",
+#endif /* !NO_HELP */
+	.get = AT_P2P_get_config,
+	.set = AT_P2P_set_config,
+	.run = AT_return_error_l,
+  },
+  
+  {
+	.string = AT_PSEND,
+	.size_string = sizeof(AT_PSEND) - 1,
+#ifndef NO_HELP
+	.help_string = "AT"AT_PSEND"=<Payload><CR>. Send binary data with the application\r\n",
+#endif /* !NO_HELP */
+	.get = AT_return_error_l,
+	.set = AT_P2P_Tx,
+	.run = AT_return_error_l,
+  },
+  
+  {
+    .string = AT_PRECV,
+    .size_string = sizeof(AT_PRECV) - 1,
+#ifndef NO_HELP
+    .help_string = "AT"AT_PRECV"=<Timeout><CR>. \r\n",
+#endif /* !NO_HELP */
+    .get = AT_return_error_l,
+    .set = AT_return_error_l,
+    .run = AT_P2P_Rx,
+  },
 
   {
 	.string = AT_CERTISEND,
@@ -594,10 +630,21 @@ static const struct ATCommand_s ATCommand[] =
 	.string = AT_SSWVER,
 	.size_string = sizeof(AT_SSWVER) - 1,
 #ifndef NO_HELP
-	.help_string = "",
+	.help_string = "AT"AT_SSWVER" Get SW Version \r\n",
 #endif /* !NO_HELP */
 	.get = AT_sw_version_get_l,
 	.set = AT_return_error_l,
+	.run = AT_return_error_l,
+  },
+
+  {
+  	.string = AT_NWKTYPE,
+	.size_string = sizeof(AT_NWKTYPE) - 1,
+#ifndef NO_HELP
+	.help_string = "AT"AT_NWKTYPE"=<NetworkType><CR>. Get or Set the Network Type setting Type=[0:Public, 1:Private]\r\n",
+#endif /* !NO_HELP */
+	.get = AT_Network_Type_get,
+	.set = AT_Network_Type_set,
 	.run = AT_return_error_l,
   },
 };

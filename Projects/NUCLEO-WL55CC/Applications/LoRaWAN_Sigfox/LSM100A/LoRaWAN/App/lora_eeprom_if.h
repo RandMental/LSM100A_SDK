@@ -54,6 +54,7 @@ typedef enum
   EE_LORA_INIT_ID = 0,
   EE_LORA_TYPE_ID,					// 0: NONE 1:ABP	2: OTAA 
   EE_LORA_CLASS_ID,					// 0: CLASS_A 1:CLASS_B	2: CLASS_C 
+  EE_LORA_NETWORK_TYPE_ID,
   EE_LORA_WORD0_APPKEY_ID,
   EE_LORA_WORD1_APPKEY_ID,
   EE_LORA_WORD2_APPKEY_ID,
@@ -118,21 +119,24 @@ void E2P_LORA_FW_Write_Mode(uint8_t LoRaMode);
 uint8_t E2P_LORA_Read_Mode(void);
 void E2P_LORA_Write_Mode(uint8_t LoRaMode);
 
+uint8_t E2P_LORA_Read_Network_Type(void);
+void E2P_LORA_Write_Network_Type(uint8_t NetworkType);
 
-void E2P_LORA_Read_Appeui(lora_u32 config_words[2]);
-void E2P_LORA_Write_Appeui(lora_u32 config_words[2]);
 
-void E2P_LORA_Read_Appkey(lora_u32 config_words[4]);
-void E2P_LORA_Write_Appkey(lora_u32 config_words[4]);
+void E2P_LORA_Read_Appeui(uint8_t *pRappEui);
+void E2P_LORA_Write_Appeui(uint8_t *pWappEui);
 
-void E2P_LORA_Read_Nwkkey(lora_u32 config_words[4]);
-void E2P_LORA_Write_Nwkkey(lora_u32 config_words[4]);
+void E2P_LORA_Read_Appkey(uint8_t *pRappKey);
+void E2P_LORA_Write_Appkey(uint8_t *pWappKey);
 
-void E2P_LORA_Read_App_S_key(lora_u32 config_words[4]);
-void E2P_LORA_Write_App_S_key(lora_u32 config_words[4]);
+void E2P_LORA_Read_Nwkkey(uint8_t *pRnwkKey);
+void E2P_LORA_Write_Nwkkey(uint8_t *pWnwkKey);
 
-void E2P_LORA_Read_Nwk_S_key(lora_u32 config_words[4]);
-void E2P_LORA_Write_Nwk_S_key(lora_u32 config_words[4]);
+void E2P_LORA_Read_App_S_key(uint8_t *pRappSKey);
+void E2P_LORA_Write_App_S_key(uint8_t *pWappSKey);
+
+void E2P_LORA_Read_Nwk_S_key(uint8_t *pRnwkSKey);
+void E2P_LORA_Write_Nwk_S_key(uint8_t *pWnwkSKey);
 
 
 

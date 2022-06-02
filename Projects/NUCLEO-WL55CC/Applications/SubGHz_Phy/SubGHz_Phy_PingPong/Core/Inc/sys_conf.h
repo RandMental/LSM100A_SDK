@@ -65,6 +65,9 @@ extern "C" {
   */
 #define LOW_POWER_DISABLE           0
 
+
+#define FEATURE_SUPPORT_IAP_BOOTLOADER
+
 /* USER CODE BEGIN EC */
 
 /* USER CODE END EC */
