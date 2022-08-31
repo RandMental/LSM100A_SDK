@@ -1,5 +1,8 @@
 ## LSM100A Release Note
 
+#### 08/JUN/2022
+1. Fixed LoRa Default Key
+
 #### 31/MAY/2022 
 + FW Ver 1.0.1
 

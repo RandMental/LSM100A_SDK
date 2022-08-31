@@ -151,25 +151,25 @@ typedef unsigned short      lora_error_t;
 #define LORA_APPEUI_WORD_1          						(lora_u32)0x01010101
 
 
-#define LORA_APPKEY_WORD_0          						(lora_u32)0x12345678 /* SM = Short message */
-#define LORA_APPKEY_WORD_1          						(lora_u32)0x12345678
-#define LORA_APPKEY_WORD_2          						(lora_u32)0x12345678
-#define LORA_APPKEY_WORD_3          						(lora_u32)0x12345678
+#define LORA_APPKEY_WORD_0          						(lora_u32)0x2B7E1516 /* SM = Short message */
+#define LORA_APPKEY_WORD_1          						(lora_u32)0x28AED2A6
+#define LORA_APPKEY_WORD_2          						(lora_u32)0xABF71588
+#define LORA_APPKEY_WORD_3          						(lora_u32)0x09CF4F3C
 
-#define LORA_NWKKEY_WORD_0          						(lora_u32)0x87654321
-#define LORA_NWKKEY_WORD_1          						(lora_u32)0x87654321
-#define LORA_NWKKEY_WORD_2          						(lora_u32)0x87654321
-#define LORA_NWKKEY_WORD_3          						(lora_u32)0x87654321
+#define LORA_NWKKEY_WORD_0          						(lora_u32)0x2B7E1516
+#define LORA_NWKKEY_WORD_1          						(lora_u32)0x28AED2A6
+#define LORA_NWKKEY_WORD_2          						(lora_u32)0xABF71588
+#define LORA_NWKKEY_WORD_3          						(lora_u32)0x09CF4F3C
 
-#define LORA_APPSKEY_WORD_0          						(lora_u32)0x00000001
-#define LORA_APPSKEY_WORD_1          						(lora_u32)0x00000001
-#define LORA_APPSKEY_WORD_2          						(lora_u32)0x00000001
-#define LORA_APPSKEY_WORD_3          						(lora_u32)0x00000001
+#define LORA_APPSKEY_WORD_0          						(lora_u32)0x2B7E1516
+#define LORA_APPSKEY_WORD_1          						(lora_u32)0x28AED2A6
+#define LORA_APPSKEY_WORD_2          						(lora_u32)0xABF71588
+#define LORA_APPSKEY_WORD_3          						(lora_u32)0x09CF4F3C
 
-#define LORA_NWKSKEY_WORD_0          						(lora_u32)0x00000002
-#define LORA_NWKSKEY_WORD_1          						(lora_u32)0x00000002
-#define LORA_NWKSKEY_WORD_2          						(lora_u32)0x00000002
-#define LORA_NWKSKEY_WORD_3          						(lora_u32)0x00000002
+#define LORA_NWKSKEY_WORD_0          						(lora_u32)0x2B7E1516
+#define LORA_NWKSKEY_WORD_1          						(lora_u32)0x28AED2A6
+#define LORA_NWKSKEY_WORD_2          						(lora_u32)0xABF71588
+#define LORA_NWKSKEY_WORD_3          						(lora_u32)0x09CF4F3C
 
 /*!
  * Format commissioning keys

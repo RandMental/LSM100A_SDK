@@ -1,0 +1,6 @@
+lora_command.c:809:16:CMD_ProcessBackSpace	12	static
+lora_command.c:858:13:CMD_GetChar	8	static
+lora_command.c:985:13:com_error	8	static
+lora_command.c:894:13:parse_cmd	16	static
+lora_command.c:703:6:CMD_Init_L	8	static
+lora_command.c:724:6:CMD_Process_L	16	static,ignoring_inline_asm

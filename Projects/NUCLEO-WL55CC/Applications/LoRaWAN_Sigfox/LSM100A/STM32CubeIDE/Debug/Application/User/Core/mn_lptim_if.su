@@ -1,0 +1,2 @@
+mn_lptim_if.c:65:6:MN_LPTIM_IF_Init	8	static
+mn_lptim_if.c:94:6:MN_LPTIM_IF_DeInit	64	static
