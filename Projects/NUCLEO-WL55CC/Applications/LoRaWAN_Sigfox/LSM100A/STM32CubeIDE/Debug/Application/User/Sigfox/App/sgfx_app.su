@@ -1,3 +1,0 @@
-sgfx_app.c:285:13:CmdProcessNotify	8	static
-sgfx_app.c:175:20:st_sigfox_open	56	static
-sgfx_app.c:80:6:Sigfox_Init	24	static

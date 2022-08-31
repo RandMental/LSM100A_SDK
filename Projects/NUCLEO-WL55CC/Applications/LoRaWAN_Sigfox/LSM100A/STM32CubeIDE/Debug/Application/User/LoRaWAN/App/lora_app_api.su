@@ -1,3 +1,0 @@
-lora_app_api.c:268:13:OnAPITxTimerEvent	8	static
-lora_app_api.c:227:13:APISendTxData	24	static
-lora_app_api.c:183:6:LoRaWAN_API_Init	16	static

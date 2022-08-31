@@ -1,2 +1,0 @@
-app_sigfox.c:67:6:MX_Sigfox_Init	8	static
-app_sigfox.c:83:6:MX_Sigfox_Process	8	static

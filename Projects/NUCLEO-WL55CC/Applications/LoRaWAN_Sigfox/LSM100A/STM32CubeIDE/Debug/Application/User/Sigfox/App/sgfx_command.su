@@ -1,6 +1,0 @@
-sgfx_command.c:550:16:CMD_ProcessBackSpace	12	static
-sgfx_command.c:599:13:CMD_GetChar	8	static
-sgfx_command.c:712:13:com_error	8	static
-sgfx_command.c:623:13:parse_cmd	16	static
-sgfx_command.c:467:6:CMD_Init	8	static
-sgfx_command.c:492:6:CMD_Process	16	static

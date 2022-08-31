@@ -1,8 +1,0 @@
-flash_if.c:282:16:FLASH_IF_IsEmpty	8	static
-flash_if.c:167:9:FLASH_IF_Write64	16	static
-flash_if.c:247:16:FLASH_IF_Write_Buffer	32	static
-flash_if.c:184:9:FLASH_IF_EraseByPages	24	static
-flash_if.c:90:9:FLASH_IF_Write	40	static
-flash_if.c:213:6:HAL_FLASH_EndOfOperationCallback	0	static
-flash_if.c:228:6:HAL_FLASH_OperationErrorCallback	0	static
-flash_if.c:235:6:HWCB_FLASH_EndOfCleanup	0	static
