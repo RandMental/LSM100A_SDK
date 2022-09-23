@@ -69,6 +69,8 @@ int main(void)
 
   /* MCU Configuration--------------------------------------------------------*/
 
+  SCB->VTOR = START_FLASH_ADDRESS;
+
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
