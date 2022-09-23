@@ -90,7 +90,6 @@ extern "C" {
 
 #else   /* USE_BSP_DRIVER*/
 
-#if LSM_RF_CHANNEL_SWITCH
 #define RF_SW_CTRL1_PIN                          RF_CTRL1_Pin
 #define RF_SW_CTRL1_GPIO_PORT                    RF_CTRL1_GPIO_Port
 #define RF_SW_CTRL1_GPIO_CLK_ENABLE()            RF_CTRL1_GPIO_CLK_ENABLE()
@@ -100,22 +99,6 @@ extern "C" {
 #define RF_SW_CTRL2_GPIO_PORT                    RF_CTRL2_GPIO_Port
 #define RF_SW_CTRL2_GPIO_CLK_ENABLE()            RF_CTRL2_GPIO_CLK_ENABLE()
 #define RF_SW_CTRL2_GPIO_CLK_DISABLE()           RF_CTRL2_GPIO_CLK_DISABLE()
-#else   /* LSM_RF_CHANNEL_SWITCH */
-#define RF_SW_CTRL3_PIN                          GPIO_PIN_3
-#define RF_SW_CTRL3_GPIO_PORT                    GPIOC
-#define RF_SW_CTRL3_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOC_CLK_ENABLE()
-#define RF_SW_CTRL3_GPIO_CLK_DISABLE()           __HAL_RCC_GPIOC_CLK_DISABLE()
-
-#define RF_SW_CTRL1_PIN                          GPIO_PIN_4
-#define RF_SW_CTRL1_GPIO_PORT                    GPIOC
-#define RF_SW_CTRL1_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOC_CLK_ENABLE()
-#define RF_SW_RX_GPIO_CLK_DISABLE()              __HAL_RCC_GPIOC_CLK_DISABLE()
-
-#define RF_SW_CTRL2_PIN                          GPIO_PIN_5
-#define RF_SW_CTRL2_GPIO_PORT                    GPIOC
-#define RF_SW_CTRL2_GPIO_CLK_ENABLE()            __HAL_RCC_GPIOC_CLK_ENABLE()
-#define RF_SW_CTRL2_GPIO_CLK_DISABLE()           __HAL_RCC_GPIOC_CLK_DISABLE()
-#endif   /* LSM_RF_CHANNEL_SWITCH */
 
 /* To be checked vs TCXO management in RCC config */
 #define RF_TCXO_VCC_PIN                          GPIO_PIN_0
