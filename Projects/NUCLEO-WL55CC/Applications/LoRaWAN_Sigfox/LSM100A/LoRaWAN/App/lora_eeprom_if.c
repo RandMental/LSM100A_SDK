@@ -150,6 +150,7 @@ void E2P_LORA_RestoreFs(void)
 //-------------------------------------------------------------------------------------------  
   E2P_LORA_Write(EE_LORA_MODE_ID, 1);					  		//  0: Disable	  	1: enable
   E2P_LORA_Write(EE_LORA_FW_MODE_ID, 0);			  	//  0: HIGH/LOW		1: LOW		  2: HIGH
+  E2P_LORA_Write(EE_LORA_ABP_FCNT_ID, 0);
 
   HAL_FLASH_Lock();
   /* USER CODE BEGIN E2P_RestoreFs_2 */
@@ -270,6 +271,34 @@ void E2P_LORA_FW_Write_Mode(uint8_t LoRaMode)
   /* USER CODE BEGIN E2P_Write_FW_Mode_2 */
 
   /* USER CODE END E2P_Write_FW_Mode_2 */
+}
+
+uint32_t E2P_LORA_Read_ABP_Fcnt(void)
+{
+  /* USER CODE BEGIN E2P_Read_ABP_Fcnt_1 */
+
+  /* USER CODE END E2P_Read_ABP_Fcnt_1 */
+  uint32_t Fcnt = 0;
+  E2P_LORA_Read(EE_LORA_ABP_FCNT_ID, &Fcnt);
+  return Fcnt;
+  /* USER CODE BEGIN E2P_Read_ABP_Fcnt_2 */
+
+  /* USER CODE END E2P_Read_ABP_Fcnt_2 */
+}
+
+void E2P_LORA_Write_ABP_Fcnt(uint32_t Fcnt)
+{
+  /* USER CODE BEGIN E2P_Write_ABP_Fcnt_1 */
+
+  /* USER CODE END E2P_Write_ABP_Fcnt_1 */
+  HAL_FLASH_Unlock();
+
+  E2P_LORA_Write(EE_LORA_ABP_FCNT_ID, Fcnt);
+
+  HAL_FLASH_Lock();
+  /* USER CODE BEGIN E2P_Write_ABP_Fcnt_2 */
+
+  /* USER CODE END E2P_Write_ABP_Fcnt_2 */
 }
 
 uint8_t E2P_LORA_Read_Network_Type(void)

@@ -355,6 +355,21 @@ ATEerror_t AT_reset_l(const char *param)
   /* USER CODE END AT_reset_2 */
 }
 
+ATEerror_t AT_restore_factory_settings_l(const char *param)
+{
+  /* USER CODE BEGIN AT_restore_factory_settings_1 */
+
+  /* USER CODE END AT_restore_factory_settings_1 */
+  /* store nvm in flash */
+  E2P_LORA_RestoreFs();
+  NVIC_SystemReset();
+
+  return AT_OK;
+  /* USER CODE BEGIN AT_restore_factory_settings_2 */
+
+  /* USER CODE END AT_restore_factory_settings_2 */
+}
+
 ATEerror_t AT_verbose_get_l(const char *param)
 {
   /* USER CODE BEGIN AT_verbose_get_1 */
@@ -450,13 +465,13 @@ ATEerror_t AT_JoinEUI_set(const char *param)
     return AT_PARAM_ERROR;
   }
 				  
-  E2P_LORA_Write_Appeui(JoinEui);
-				  
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetAppEUI(JoinEui))
   {
     return AT_ERROR;
   }
 
+  E2P_LORA_Write_Appeui(JoinEui);
+  
   return AT_OK;
   /* USER CODE BEGIN AT_JoinEUI_set_2 */
 
@@ -493,13 +508,13 @@ ATEerror_t AT_NwkKey_set(const char *param)
     return AT_PARAM_ERROR;
   }
   
-  E2P_LORA_Write_Nwkkey(nwkKey);
-
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetNwkKey(nwkKey))
   {
     return AT_ERROR;
   }
-
+  
+  E2P_LORA_Write_Nwkkey(nwkKey);  
+  
   return AT_OK;
   /* USER CODE BEGIN AT_NwkKey_set_2 */
 
@@ -536,13 +551,13 @@ ATEerror_t AT_AppKey_set(const char *param)
     return AT_PARAM_ERROR;
   }
 
-  E2P_LORA_Write_Appkey(appKey);
-
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetAppKey(appKey))
   {
     return AT_ERROR;
   }
 
+  E2P_LORA_Write_Appkey(appKey);
+  
   return AT_OK;
   /* USER CODE BEGIN AT_AppKey_set_2 */
 
@@ -579,12 +594,12 @@ ATEerror_t AT_NwkSKey_set(const char *param)
     return AT_PARAM_ERROR;
   }
 
-  E2P_LORA_Write_Nwk_S_key(nwkSKey);
-
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetNwkSKey(nwkSKey))
   {
     return AT_ERROR;
   }
+  
+  E2P_LORA_Write_Nwk_S_key(nwkSKey);
 
   return AT_OK;
   /* USER CODE BEGIN AT_NwkSKey_set_2 */
@@ -621,13 +636,13 @@ ATEerror_t AT_AppSKey_set(const char *param)
   {
     return AT_PARAM_ERROR;
   }
-  
-  E2P_LORA_Write_App_S_key(appSKey);
 
   if (LORAMAC_HANDLER_SUCCESS != LmHandlerSetAppSKey(appSKey))
   {
     return AT_ERROR;
   }
+  
+  E2P_LORA_Write_App_S_key(appSKey);
 
   return AT_OK;
   /* USER CODE BEGIN AT_AppSKey_set_2 */
@@ -1620,6 +1635,48 @@ ATEerror_t AT_Network_Type_set(const char *param)
   /* USER CODE BEGIN AT_Network_Type_set_2 */
 
   /* USER CODE END AT_Network_Type_set_2 */
+}
+
+ATEerror_t AT_ABP_Fcnt_get(const char *param)
+{
+  /* USER CODE BEGIN AT_ABP_Fcnt_get_1 */
+
+  /* USER CODE END AT_ABP_Fcnt_get_1 */
+  uint32_t Fcnt;
+  Fcnt = E2P_LORA_Read_ABP_Fcnt();
+
+  print_u(Fcnt);
+  return AT_OK;
+  /* USER CODE BEGIN AT_ABP_Fcnt_get_2 */
+	
+  /* USER CODE END AT_ABP_Fcnt_get_2 */
+}
+
+ATEerror_t AT_ABP_Fcnt_set(const char *param)
+{
+  /* USER CODE BEGIN AT_ABP_Fcnt_set_1 */
+
+  /* USER CODE END AT_ABP_Fcnt_set_1 */
+  uint32_t Fcnt = 0;
+
+  if(tiny_sscanf(param, "%u", &Fcnt) != 1)
+  {
+	return AT_PARAM_ERROR;
+  }
+  if(Fcnt == 0)
+  {
+	E2P_LORA_Write_ABP_Fcnt(Fcnt);
+  }
+  else
+  {
+	print_u(Fcnt);
+	E2P_LORA_Write_ABP_Fcnt(Fcnt);
+  }
+
+  return AT_OK;
+  /* USER CODE BEGIN AT_ABP_Fcnt_set_2 */
+
+  /* USER CODE END AT_ABP_Fcnt_set_2 */
 }
 
 /* --------------- Radio tests commands --------------- */

@@ -109,6 +109,17 @@ static const struct ATCommand_s ATCommand[] =
   },
 
   {
+    .string = AT_RFS,
+	.size_string = sizeof(AT_RFS) - 1,
+#ifndef NO_HELP
+	.help_string = "AT"AT_RFS ": Restore EEPROM Factory Settings\r\n",
+#endif /* !NO_HELP */
+	.get = AT_return_error_l,
+	.set = AT_return_error_l,
+	.run = AT_restore_factory_settings_l,
+  },
+
+  {
     .string = AT_VL,
     .size_string = sizeof(AT_VL) - 1,
 #ifndef NO_HELP
@@ -636,7 +647,7 @@ static const struct ATCommand_s ATCommand[] =
 	.set = AT_return_error_l,
 	.run = AT_return_error_l,
   },
-
+  
   {
   	.string = AT_NWKTYPE,
 	.size_string = sizeof(AT_NWKTYPE) - 1,
@@ -647,6 +658,17 @@ static const struct ATCommand_s ATCommand[] =
 	.set = AT_Network_Type_set,
 	.run = AT_return_error_l,
   },
+  
+  {
+  	.string = AT_ABPFCNT,
+	.size_string = sizeof(AT_ABPFCNT) - 1,
+#ifndef NO_HELP
+	.help_string = "AT"AT_ABPFCNT"=?<CR>. Get the ABP Frame count\r\n",
+#endif /* !NO_HELP */
+	.get = AT_ABP_Fcnt_get,
+	.set = AT_ABP_Fcnt_set,
+	.run = AT_return_error_l,
+  }, 
 };
 
 static char circBuffer[CIRC_BUFF_SIZE];

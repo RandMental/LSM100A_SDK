@@ -37,7 +37,7 @@ extern "C" {
 
 /* Exported defines ----------------------------------------------------------*/
 
-#define APP_SW_VERSION    "V0.0.19"
+#define APP_SW_VERSION    "V0.0.21"
 
 #ifdef FEATURE_SUPPORT_IAP_BOOTLOADER
 #define IAP_VERSION		  "V1.0.0"

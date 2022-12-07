@@ -102,7 +102,6 @@ sfx_error_t CREDENTIALS_wrap_session_key(uint8_t *data, uint8_t blocks);
 
 sfx_error_t Get_encrypted_sf_data(sfx_u8 *encrypted_data, sfx_u8 *data_to_encrypt, sfx_u8 data_len);
 
-
 #endif /* FEATURE_SECURE_MODE */
 
 

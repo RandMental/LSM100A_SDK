@@ -78,6 +78,7 @@ typedef enum eATEerror
 /* AT Command strings. Commands start with AT */
 /* General commands */
 #define AT_RESET      "Z"
+#define AT_RFS        "+RFS"
 #define AT_VL         "+VL"
 #define AT_LTIME      "+LTIME"
 
@@ -114,6 +115,7 @@ typedef enum eATEerror
 #define AT_TXP        "+TXP"
 #define AT_PGSLOT     "+PGSLOT"
 #define AT_NWKTYPE    "+NWKTYPE"
+#define AT_ABPFCNT    "+ABPFCNT"
 
 /* Radio tests commands */
 #define AT_TTONE      "+TTONE"
@@ -212,6 +214,8 @@ ATEerror_t AT_LocalTime_get(const char *param);
 ATEerror_t AT_selection_get_l(const char *param);
 
 ATEerror_t AT_selection_set_l(const char *param);
+
+ATEerror_t AT_restore_factory_settings_l(const char *param);
 
 
 /* --------------- Keys, IDs and EUIs management commands --------------- */
@@ -558,6 +562,19 @@ ATEerror_t AT_Network_Type_get(const char *param);
   */
 ATEerror_t AT_Network_Type_set(const char *param);
 
+/**
+  * @brief  get the ABP Frame count
+  * @retval AT_OK
+  * @param  param String parameter to join devnonce
+  */
+ATEerror_t AT_ABP_Fcnt_get(const char *param);
+
+/**
+  * @brief  Set the ABP Frame count
+  * @param  param String parameter to join devnonce 
+  * @retval AT_OK
+  */
+ATEerror_t AT_ABP_Fcnt_set(const char *param);
 
 /* --------------- Radio tests commands --------------- */
 /**

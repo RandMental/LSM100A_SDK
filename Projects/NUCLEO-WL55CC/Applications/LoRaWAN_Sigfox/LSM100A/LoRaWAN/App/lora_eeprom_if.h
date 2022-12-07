@@ -76,6 +76,7 @@ typedef enum
 
   EE_LORA_MODE_ID,
   EE_LORA_FW_MODE_ID,
+  EE_LORA_ABP_FCNT_ID,
   
   EE_LORA_ID_COUNT,
 } e_EE_LORA_ID;
@@ -118,6 +119,9 @@ void E2P_LORA_FW_Write_Mode(uint8_t LoRaMode);
 
 uint8_t E2P_LORA_Read_Mode(void);
 void E2P_LORA_Write_Mode(uint8_t LoRaMode);
+
+uint32_t E2P_LORA_Read_ABP_Fcnt(void);
+void E2P_LORA_Write_ABP_Fcnt(uint32_t Fcnt);
 
 uint8_t E2P_LORA_Read_Network_Type(void);
 void E2P_LORA_Write_Network_Type(uint8_t NetworkType);
